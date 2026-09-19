@@ -46,4 +46,21 @@ assert.equal(run('busy'),false);assert.equal(run('state.tiles[0].x'),0);
 setup([[0,0,0],[0,2,1],[0,2,3],[0,4,5]]);down();move(0,50);move(0,150);
 assert.equal(run('state.tiles[0].y'),3);assert.equal(run('drag.targets[0]'),2);up(0,150);
 assert.equal(run('busy'),true);
-console.log('PASS: fractional tracking, axis highlight, hold/release, double explosion, pushing, rollback, cancellation, single click, multi-target choice, horizontal/vertical pass-through, later target selection, unmatched overshoot.');
+// The initial push group stops at a new obstacle even with a large pointer jump.
+setup([[0,0,0],[1,1,0],[2,3,0],[0,1,2]]);down();move(250);
+assert.equal(run('state.tiles[0].x'),1);assert.equal(run('state.tiles[1].x'),2);
+assert.equal(run('state.tiles[2].x'),3);
+move(25);move(250);assert.equal(run('state.tiles[2].x'),3);
+up(250);timers.filter(t=>t.ms===620).forEach(t=>t.fn());
+assert.equal(run('state.tiles.length'),2);assert.equal(run('state.tiles.find(t=>t.id===1).x'),2);
+assert.equal(run('state.tiles.find(t=>t.id===2).x'),3);
+// With no initial neighbor, contact cannot recruit one; reversal uses the original board.
+setup([[0,2,0],[1,4,0],[2,0,0]]);down();move(250);
+assert.equal(run('state.tiles[0].x'),3);assert.equal(run('state.tiles[1].x'),4);
+move(-250);assert.equal(run('state.tiles[0].x'),1);assert.equal(run('state.tiles[2].x'),0);
+up(-250);assert.equal(run('state.tiles[0].x'),2);
+setup([[0,0,0],[1,0,1],[2,0,4]]);down();move(0,350);
+assert.equal(run('state.tiles[0].y'),2);assert.equal(run('state.tiles[1].y'),3);
+assert.equal(run('state.tiles[2].y'),4);b.events.pointercancel();
+assert.equal(run('state.tiles[0].y'),0);
+console.log('PASS: motion, release, matching, frozen push groups, obstacle collision, reversal and cancellation.');

@@ -16,17 +16,29 @@
     }
     return result;
   }
-  // Move one grid cell; a contiguous line can be pushed only if its far end has space.
-  function step(s, id, dx, dy) {
+  // Capture the push group once, from the board at the start of the gesture.
+  function pushGroup(s, id, dx, dy) {
+    const tile = s.tiles.find(t => t.id === id);
+    if (!tile || !dirs.some(d => d[0] === dx && d[1] === dy)) return [];
+    const ids = [id];
+    for (let x = tile.x + dx, y = tile.y + dy; inside(s, x, y); x += dx, y += dy) {
+      const other = at(s, x, y);
+      if (!other) break;
+      ids.push(other.id);
+    }
+    return ids;
+  }
+  // Later obstacles block this group; they cannot join an ongoing gesture.
+  function step(s, id, dx, dy, group = pushGroup(s, id, dx, dy)) {
     if (!dirs.some(d => d[0] === dx && d[1] === dy)) return null;
     const next = copy(s), tile = next.tiles.find(t => t.id === id);
     if (!tile) return null;
-    const line = [tile];
-    let x = tile.x + dx, y = tile.y + dy;
-    while (inside(next, x, y) && at(next, x, y)) {
-      line.push(at(next, x, y)); x += dx; y += dy;
-    }
-    if (!inside(next, x, y)) return null;
+    const ids = new Set(group), line = next.tiles.filter(t => ids.has(t.id));
+    if (!ids.has(id)) return null;
+    if (line.some(t => {
+      const x = t.x + dx, y = t.y + dy, other = at(next, x, y);
+      return !inside(next, x, y) || (other && !ids.has(other.id));
+    })) return null;
     line.forEach(t => { t.x += dx; t.y += dy; });
     return next;
   }
@@ -41,9 +53,10 @@
       if (candidates.length) return { id: t.id, targets: candidates, dx: 0, dy: 0, steps: 0, state: copy(s) };
     }
     for (const t of s.tiles) for (const [dx, dy] of dirs) {
+      const group = pushGroup(s, t.id, dx, dy);
       let next = s;
       for (let steps = 1; steps <= Math.max(s.cols, s.rows); steps++) {
-        next = step(next, t.id, dx, dy);
+        next = step(next, t.id, dx, dy, group);
         if (!next) break;
         const candidates = matches(next, t.id);
         if (candidates.length) return { id: t.id, targets: candidates, dx, dy, steps, state: next };
@@ -94,7 +107,7 @@
       [6,3,6],[6,5,6], [7,3,7],[7,5,7]
     ].map(([type,x,y], id) => ({ id,type,x,y })) };
   }
-  const api = { dirs, copy, at, inside, matches, step, remove, findMove, shuffle, generate, tutorial };
+  const api = { dirs, copy, at, inside, matches, pushGroup, step, remove, findMove, shuffle, generate, tutorial };
   if (typeof module !== 'undefined') module.exports = api;
   else root.BrickEngine = api;
 })(globalThis);

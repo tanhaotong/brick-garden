@@ -98,8 +98,9 @@ function tap(id) {
 function dragPath(d, sign) {
   if(d.paths[sign]) return d.paths[sign];
   const path=[d.before], dx=d.axis==='x'?sign:0, dy=d.axis==='y'?sign:0;
+  const group=E.pushGroup(d.before,d.id,dx,dy);
   for(let i=0;i<Math.max(state.cols,state.rows);i++) {
-    const next=E.step(path[path.length-1],d.id,dx,dy); if(!next)break;
+    const next=E.step(path[path.length-1],d.id,dx,dy,group); if(!next)break;
     path.push(next);
   }
   return d.paths[sign]={path};
