@@ -103,7 +103,35 @@
     const types = [];
     for (let i = 0; i < total / 2; i++) types.push(i % kinds, i % kinds);
     const s = { cols, rows, tiles: types.map((type, id) => ({ id, type, x: id % cols, y: Math.floor(id / cols) })) };
-    return shuffle(s, rng);
+    const minimum = Math.min(4, total / 2), maximum = Math.min(6, total / 2);
+    // Count undirected adjacent pairs once. Reject shared endpoints so the
+    // opening offers independent pairs, not several choices using one tile.
+    // A seeded fallback also handles a caller supplying a constant RNG.
+    let seed = 0x6d2b79f5;
+    const fallback = () => {
+      seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5;
+      return (seed >>> 0) / 4294967296;
+    };
+    for (let attempt = 0; attempt < 2048; attempt++) {
+      const random = attempt < 128 ? rng : fallback;
+      for (let i = types.length - 1; i > 0; i--) {
+        const j = Math.floor(random() * (i + 1));
+        [types[i], types[j]] = [types[j], types[i]];
+      }
+      const used = new Set(); let pairs = 0, overlap = false;
+      for (let i = 0; i < total; i++) {
+        for (const j of [i % cols < cols - 1 ? i + 1 : -1, i + cols < total ? i + cols : -1]) {
+          if (j < 0 || types[i] !== types[j]) continue;
+          if (used.has(i) || used.has(j)) overlap = true;
+          used.add(i); used.add(j); pairs++;
+        }
+      }
+      if (!overlap && pairs >= minimum && pairs <= maximum) {
+        s.tiles.forEach((t,i) => { t.type = types[i]; });
+        return s;
+      }
+    }
+    throw new Error('Could not generate an opening with independent pairs');
   }
   function tutorial() {
     return { cols: 6, rows: 8, tiles: [

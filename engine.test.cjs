@@ -1,5 +1,21 @@
 const assert = require('node:assert/strict'), E=require('./engine.js');
 const board=(cols,rows,tiles)=>({cols,rows,tiles:tiles.map(([type,x,y],id)=>({id,type,x,y}))});
+// Check actual engine-visible matches, not the generator's internal counter.
+let seed=20260920;
+const seeded=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
+for (const [cols,rows,kinds] of [[10,14,48],[6,8,16]]) {
+  for(let trial=0;trial<500;trial++) {
+    const s=E.generate(cols,rows,kinds,trial===0?()=>0:trial===1?()=>0.999999:seeded);
+    const pairs=s.tiles.flatMap(t=>E.matches(s,t.id).filter(id=>id>t.id).map(id=>[t.id,id]));
+    assert.ok(pairs.length>=4&&pairs.length<=6);
+    assert.equal(new Set(pairs.flat()).size,pairs.length*2);
+    const counts={};s.tiles.forEach(t=>counts[t.type]=(counts[t.type]||0)+1);
+    assert.ok(Object.values(counts).every(n=>n===2||n===4));
+    let remaining=s;
+    for(const [a,b] of pairs) remaining=E.remove(remaining,a,b);
+    assert.equal(remaining.tiles.length,cols*rows-2*pairs.length);
+  }
+}
 for (const [cols,rows,kinds,expectedKinds] of [[10,14,48,48],[6,8,16,16],[10,14,18,35]]) {
   for (let i=0;i<10;i++) {
     const generated=E.generate(cols,rows,kinds), counts=new Map();
