@@ -1,5 +1,17 @@
 const assert = require('node:assert/strict'), E=require('./engine.js');
 const board=(cols,rows,tiles)=>({cols,rows,tiles:tiles.map(([type,x,y],id)=>({id,type,x,y}))});
+for (const [cols,rows,kinds,expectedKinds] of [[10,14,48,48],[6,8,16,16],[10,14,18,35]]) {
+  for (let i=0;i<10;i++) {
+    const generated=E.generate(cols,rows,kinds), counts=new Map();
+    generated.tiles.forEach(t=>counts.set(t.type,(counts.get(t.type)||0)+1));
+    assert.equal(generated.tiles.length,cols*rows);
+    assert.equal(counts.size,expectedKinds);
+    assert.ok([...counts.values()].every(n=>n===2||n===4));
+    assert.ok(E.findMove(generated));
+    const shuffled=E.shuffle(generated);
+    assert.deepEqual(shuffled.tiles.map(t=>t.type),generated.tiles.map(t=>t.type));
+  }
+}
 // Freeze the initial group in all four directions, including crossing multiple empty cells.
 for (const [dx,dy] of E.dirs) {
   const origin={x:dx<0?6:0,y:dy<0?6:0};

@@ -16,6 +16,12 @@ let timers=[],frames=[];
 const ctx=vm.createContext({BrickEngine:require('./engine.js'),document:{getElementById:get,createElement:()=>new El(),querySelectorAll:()=>[],addEventListener:()=>{}},localStorage:{getItem:()=>null,setItem:()=>{}},setTimeout:(fn,ms)=>timers.push({fn,ms}),requestAnimationFrame:fn=>(frames.push(fn),frames.length),cancelAnimationFrame:()=>{},Date,console});
 vm.runInContext(fs.readFileSync('app.js','utf8'),ctx);
 const run=s=>vm.runInContext(s,ctx), b=get('board');
+run("newGame('classic')");
+assert.equal(run('new Set(icons).size'),48);
+assert.equal(run('new Set(state.tiles.map(t=>t.type)).size'),48);
+assert.equal(run('state.tiles.every(t=>!!icons[t.type])'),true);
+run("newGame('small')");
+assert.equal(run('new Set(state.tiles.map(t=>t.type)).size'),16);
 function setup(tiles){timers=[];frames=[];b.children=[];run(`state={cols:6,rows:8,tiles:${JSON.stringify(tiles.map(([type,x,y],id)=>({type,x,y,id})))}};history=[];busy=false;pending=drag=selected=null;render();`);}
 function down(id=0){b.events.pointerdown({button:0,pointerId:1,clientX:0,clientY:0,target:b.querySelector(`[data-id="${id}"]`)});}
 function move(x,y=0){b.events.pointermove({pointerId:1,clientX:x,clientY:y});while(frames.length)frames.shift()();}

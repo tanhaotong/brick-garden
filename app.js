@@ -1,6 +1,8 @@
 'use strict';
 const E = BrickEngine, $ = id => document.getElementById(id);
-const icons = ['🌽','🥕','🍅','🥦','🍆','🫑','🍋','🍒','🌻','🌷','🍄','🌿','🪵','🧤','🪣','🧅','🍀','🍉'];
+const icons = ['🌽','🥕','🍅','🥦','🍆','🫑','🍋','🍒','🌻','🌷','🍄','🌿','🪵','🧤','🪣','🧅','🍀','🍉',
+  '🍇','🍌','🍍','🥝','🥥','🌵','🐱','🐶','🐼','🐸','🦊','🐷','🐙','🦋','🐝','🐢',
+  '🐳','🦀','⭐','🌙','🔥','❄️','🌈','⚽','🏀','🎲','🎸','🎁','🔑','💎'];
 const saveKey = 'brick-garden-v1';
 let state, history = [], selected = null, pending = null, drag = null, hinted = null, combo = 0, lastPair = 0, busy = false;
 let mode = 'classic', dead = false, requestedMode = null, suppressClickUntil = 0;
@@ -9,7 +11,7 @@ function message(text) { $('status').textContent = text; }
 function save() { try { localStorage.setItem(saveKey, JSON.stringify({ state, mode })); } catch (_) {} }
 function newGame(m = mode) {
   mode = m; $('mode').value = m;
-  state = m === 'tutorial' ? E.tutorial() : m === 'small' ? E.generate(6,8,8) : E.generate(10,14,18);
+  state = m === 'tutorial' ? E.tutorial() : m === 'small' ? E.generate(6,8,16) : E.generate(10,14,icons.length);
   history = []; selected = pending = drag = hinted = null; combo = 0; $('combo').textContent = '';
   render(); settle(); save();
 }

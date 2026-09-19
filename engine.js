@@ -93,9 +93,15 @@
     }
     throw new Error('No legal shuffle found without changing occupied cells');
   }
-  function generate(cols = 10, rows = 14, kinds = 18, rng = Math.random) {
+  function generate(cols = 10, rows = 14, kinds = 48, rng = Math.random) {
+    const total = cols * rows;
+    if (!Number.isInteger(total) || total < 2 || total % 2 || !Number.isInteger(kinds) || kinds < 1) {
+      throw new Error('Board must have an even tile count and a positive kind count');
+    }
+    // Allocate whole pairs, with only one or two pairs per type (2–4 tiles).
+    kinds = Math.min(total / 2, Math.max(kinds, Math.ceil(total / 4)));
     const types = [];
-    for (let i = 0; i < cols * rows / 2; i++) types.push(i % kinds, i % kinds);
+    for (let i = 0; i < total / 2; i++) types.push(i % kinds, i % kinds);
     const s = { cols, rows, tiles: types.map((type, id) => ({ id, type, x: id % cols, y: Math.floor(id / cols) })) };
     return shuffle(s, rng);
   }
