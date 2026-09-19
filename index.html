@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#eff4e7"><title>砖了个砖 · 本地试玩</title>
+  <link rel="stylesheet" href="style.css"><link rel="stylesheet" href="motion.css">
+</head>
+<body>
+<main class="game">
+  <header><div><span class="eyebrow">POCKET GARDEN / LOCAL DEMO</span><h1>砖了个砖<span>小小花园，慢慢清空。</span></h1></div><button class="round" id="help" aria-label="玩法说明">?</button></header>
+  <section class="scene" aria-label="花园"><div class="sun"></div><div class="hill hill-back"></div><div class="hill"></div><div class="scene-copy">今天也来搬一块砖<span>双消 · 推动 · 腾出一点空间</span></div><div class="house">🏡</div><span class="plant">🌿</span></section>
+  <section class="toolbar"><label>棋盘 <select id="mode"><option value="classic">经典 · 10 × 14</option><option value="small">轻松 · 6 × 8</option><option value="tutorial">练习 · 留白棋盘</option></select></label><div class="counter"><b id="remaining">140</b><span>块待清空</span></div></section>
+  <div class="board-wrap"><div id="board" role="group" aria-label="消除棋盘"></div><div id="combo" aria-live="polite"></div><div id="win" hidden><span>🌻</span><h2>花园清空啦！</h2><p>每一点空隙，都来自你的好主意。</p><button id="again">再来一局</button></div></div>
+  <p id="status" role="status">点砖找同类，沿直线拖动；空格之间也能消除。</p>
+  <nav class="actions" aria-label="游戏工具"><button id="hint"><span>💡</span>提示<small>找一步可消除</small></button><button id="shuffle"><span>🔀</span>打乱<small>死局时可用</small></button><button id="undo"><span>↶</span>撤回<small>回到上一步</small></button><button id="restart"><span>↻</span>新一局<small>重新布置花园</small></button></nav>
+  <footer>本地试玩 · 无广告 · 自动保存进度</footer>
+</main>
+<dialog id="rules"><button class="close" aria-label="关闭说明">×</button><span class="eyebrow">HOW TO PLAY</span><h2>腾出空间，找到另一半。</h2><ol><li>单击砖块，若已有同一直线上无遮挡的同类，就直接消除；有多个对象时点选一个。没有对象则让同类砖块抖动。</li><li>沿上下左右拖动砖块，可以推动前方一串砖块，前提是队列末端有空位。砖块连续跟手，当前所在行、列高亮。</li><li>经过同类对齐位置可以继续拖动，只有松手位置决定消除对象。对齐时亮起，松手后一起炸开；若有多个对象，再点选其中一个。其他砖块保持推动后的位置。</li><li>未形成消除时，本次拖动会回到原位。提示会标出可消除的一步；没有任何一步可消除时，可免费打乱。</li><li>全部清空才胜利。这个 Demo 还提供撤回、新一局及本机自动存档。</li></ol><p class="note">复刻交互原型，非官方版本。练习模式适合体验隔空配对与推动。</p><button class="primary close-rules">知道了，开始搬砖</button></dialog>
+<dialog id="confirm"><h2>重新布置花园？</h2><p>当前进度会被新棋盘替换。</p><div class="dialog-actions"><button id="cancel">继续玩</button><button id="confirm-new" class="primary">开始新一局</button></div></dialog>
+<script src="engine.js"></script><script src="app.js"></script>
+</body></html>

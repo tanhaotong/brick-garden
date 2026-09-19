@@ -1,0 +1,5 @@
+const http = require('node:http'), fs = require('node:fs'), path = require('node:path'), os = require('node:os');
+const files = {'/':['index.html','text/html; charset=utf-8'],'/index.html':['index.html','text/html; charset=utf-8'],'/style.css':['style.css','text/css; charset=utf-8'],'/app.js':['app.js','text/javascript; charset=utf-8'],'/engine.js':['engine.js','text/javascript; charset=utf-8']};
+const port=Number(process.env.PORT||8787);
+files['/motion.css']=['motion.css','text/css; charset=utf-8'];
+http.createServer((req,res)=>{const item=files[new URL(req.url,'http://localhost').pathname];if(!item){res.writeHead(404);res.end('Not found');return;}res.writeHead(200,{'Content-Type':item[1],'Cache-Control':'no-cache'});fs.createReadStream(path.join(__dirname,item[0])).pipe(res);}).listen(port,'0.0.0.0',()=>{console.log(`Local: http://localhost:${port}`);for(const entries of Object.values(os.networkInterfaces()))for(const ip of entries||[])if(ip.family==='IPv4'&&!ip.internal)console.log(`Phone: http://${ip.address}:${port}`);});

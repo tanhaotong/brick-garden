@@ -1,0 +1,18 @@
+/* Continuous pointer tracking uses compositor transforms, not per-cell jumps. */
+.tile{transition:left .18s cubic-bezier(.2,.8,.3,1),top .18s cubic-bezier(.2,.8,.3,1)}
+.dragging .tile{transition:none;will-change:transform}
+.dragging .tile.selected{z-index:4;filter:drop-shadow(0 3px 3px #66502060)}
+.axis-highlight{position:absolute;pointer-events:none;z-index:3;background:#e5ffc52b;box-shadow:inset 0 0 0 1px #f6ffd3aa;transition:top .09s,left .09s}
+.row-highlight{left:0;width:100%;height:calc(100%/var(--rows))}
+.col-highlight{top:0;height:100%;width:calc(100%/var(--cols))}
+.tile.match-preview>span{outline:3px solid #fffac4;outline-offset:-3px;background:#fff2a6;box-shadow:0 0 12px #fff3a3}
+.tile.bursting{z-index:5;pointer-events:none}
+.tile.bursting>span{animation:tile-explode .6s cubic-bezier(.2,.7,.3,1) both}
+.burst{position:absolute;width:0;height:0;pointer-events:none;z-index:6}
+.burst::before{content:'';position:absolute;width:36px;height:36px;border:3px solid #fff4bc;border-radius:50%;transform:translate(-50%,-50%);animation:burst-ring .58s ease-out both}
+.burst i{position:absolute;width:7px;height:9px;left:-3px;top:-4px;background:#ffe49b;border:1px solid #fff4cb;border-radius:2px;animation:burst-chip .6s cubic-bezier(.1,.6,.3,1) both}
+.burst i:nth-child(3n){background:#fffbd9;width:4px;height:4px}
+@keyframes tile-explode{0%{transform:scale(1);opacity:1}18%{transform:scale(.88);opacity:1;filter:brightness(1.2)}38%{transform:scale(1.15);opacity:1;filter:brightness(1.8)}72%,100%{transform:scale(.5);opacity:0}}
+@keyframes burst-chip{0%,23%{opacity:0;transform:translate(0,0) scale(.3)}30%{opacity:1}100%{transform:translate(var(--dx),var(--dy)) rotate(var(--spin)) scale(.2);opacity:0}}
+@keyframes burst-ring{0%,18%{opacity:0;transform:translate(-50%,-50%) scale(.3)}35%{opacity:.95}100%{opacity:0;transform:translate(-50%,-50%) scale(2.2)}}
+@media(prefers-reduced-motion:reduce){.tile,.axis-highlight{transition:none}.tile.bursting>span,.burst i,.burst::before{animation-duration:.08s}}
